@@ -1,12 +1,34 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
     <router-view/>
   </div>
 </template>
+
+<script>
+import store from '@/assets/store'
+import socket from '@/api/socket'
+
+export default {
+  created () {
+    if (sessionStorage.getItem('store')) {
+      const objAfter = JSON.parse(sessionStorage.getItem('store'))
+      store.replaceStore(objAfter)
+      // console.log('objAfter')
+      // console.log(objAfter)
+      // console.log('store')
+      // console.log(store)
+    }
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.setItem('store', JSON.stringify(store.state))
+    })
+  },
+  mounted () {
+    if (JSON.stringify(store.state.userData) !== '{}' && typeof store.state.userData !== 'undefined') {
+      socket.reConnect()
+    }
+  }
+}
+</script>
 
 <style lang="less">
 #app {
@@ -16,7 +38,14 @@
   text-align: center;
   color: #2c3e50;
 }
-
+* {
+  padding: 0;
+  margin: 0;
+}
+body {
+  width: 100vw;
+  height: 100vh;
+}
 #nav {
   padding: 30px;
 
